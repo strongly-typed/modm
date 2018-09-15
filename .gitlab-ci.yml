@@ -38,15 +38,15 @@ unittest:
 build:stm32f0-f1-examples:
   stage: build
   script:
-    - (cd examples && ../tools/scripts/examples_compile.py stm32f0_discovery stm32f072_discovery nucleo_f031k6 stm32f030f4p6_demo_board)
-    - (cd examples && ../tools/scripts/examples_compile.py stm32f1_discovery nucleo_f103rb olimexino_stm32 stm32f103c8t6_blue_pill)
+    - (cd examples && ../tools/scripts/examples_compile.py stm32f0_discovery stm32f072_discovery nucleo_f031k6 nucleo_f042k6 stm32f030f4p6_demo_board)
+    - (cd examples && ../tools/scripts/examples_compile.py stm32f1_discovery nucleo_f103rb olimexino_stm32 stm32f103c8t6_blue_pill stm32f103c8t6_black_pill)
 
 build:stm32f3-f4-f7-examples:
   stage: build
   script:
     - (cd examples && ../tools/scripts/examples_compile.py stm32f3_discovery nucleo_f303k8)
     - (cd examples && ../tools/scripts/examples_compile.py stm32f746g_discovery)
-    - (cd examples && ../tools/scripts/examples_compile.py stm32l476_discovery nucleo_l476rg)
+    - (cd examples && ../tools/scripts/examples_compile.py stm32l476_discovery nucleo_l476rg nucleo_l432kc)
 
 build:stm32f4-examples:
   stage: build
