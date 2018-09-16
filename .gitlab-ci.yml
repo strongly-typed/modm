@@ -103,9 +103,39 @@ stm32f3-compile-all:
     SERIES: stm32f3
   <<: *job_definition
 
-stm32f4-compile-all:
+stm32f40-compile-all:
   variables:
-    SERIES: stm32f4
+    SERIES: stm32f40
+  <<: *job_definition
+
+stm32f41-compile-all:
+  variables:
+    SERIES: stm32f41
+  <<: *job_definition
+
+stm32f42-compile-all:
+  variables:
+    SERIES: stm32f42
+  <<: *job_definition
+
+stm32f43-compile-all:
+  variables:
+    SERIES: stm32f43
+  <<: *job_definition
+
+stm32f44-compile-all:
+  variables:
+    SERIES: stm32f44
+  <<: *job_definition
+
+stm32f46-compile-all:
+  variables:
+    SERIES: stm32f46
+  <<: *job_definition
+
+stm32f47-compile-all:
+  variables:
+    SERIES: stm32f47
   <<: *job_definition
 
 stm32f7-compile-all:
