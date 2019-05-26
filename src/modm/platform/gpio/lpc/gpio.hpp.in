@@ -15,6 +15,7 @@
 #define MODM_LPC_GPIO_HPP
 
 #include "../device.hpp"
+#include "base.hpp"
 
 // TODO: Move to common file
 #define SYSAHBCLKCTRL_GPIO		(1<<6)

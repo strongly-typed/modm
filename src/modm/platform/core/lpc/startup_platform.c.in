@@ -24,6 +24,7 @@
 void
 __modm_initialize_platform(void)
 {
+	modm_gpio_enable();
 %% if target.family == "11"
 %% if target.series == "c24"
 

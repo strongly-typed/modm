@@ -19,17 +19,12 @@ main()
 {
 	initialize();
 
-	// LedOrange::set();
-	// LedRed::set();
+	LedRed::reset();
 
 	while (true)
 	{
-		// LedBlue::toggle();
-		// LedGreen::toggle();
-		// LedOrange::toggle();
-		// LedRed::toggle();
-		// modm::delayMilliseconds(Button::read() ? 250 : 500);
-		// modm::delayMilliseconds(500);
+		LedRed::toggle();
+		modm::delayMilliseconds(500);
 	}
 
 	return 0;

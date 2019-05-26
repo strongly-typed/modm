@@ -28,17 +28,7 @@ namespace Board
 
 // Dummy clock for devices
 struct SystemClock {
-	// static constexpr uint32_t Frequency = 48_MHz;
-	// static constexpr uint32_t Ahb = Frequency;
-	// static constexpr uint32_t Apb1 = Frequency;
-	// static constexpr uint32_t Apb2 = Frequency;
-
-	// static constexpr uint32_t Usart1 = Apb2;
-
-	// static constexpr uint32_t Usart2 = Apb1;
-	// static constexpr uint32_t Usart3 = Apb1;
-	// static constexpr uint32_t Usart4 = Apb1;
-	// static constexpr uint32_t Usart5 = Apb1;
+	static constexpr uint32_t Frequency = 12_MHz;
 
 	static bool inline
 	enable()
@@ -78,11 +68,11 @@ using Leds = SoftwareGpioPort< LedRed >;
 inline void
 initialize()
 {
-	// SystemClock::enable();
+	SystemClock::enable();
 	// SysTickTimer::initialize<SystemClock>();
 
 	// LedGreen::setOutput(modm::Gpio::Low);
-	// LedRed::setOutput(modm::Gpio::Low);
+	LedRed::setOutput(modm::Gpio::Low);
 
 	// Button::setInput();
 	// Button::setInputTrigger(Gpio::InputTrigger::RisingEdge);

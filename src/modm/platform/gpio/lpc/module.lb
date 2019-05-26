@@ -39,4 +39,4 @@ def build(env):
     env.template("base.hpp.in")
     env.template("unused.hpp.in")
     env.template("software_port.hpp.in")
-    # env.copy("gpio_enable.cpp")
+    env.copy("gpio_enable.cpp")
