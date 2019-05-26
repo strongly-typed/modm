@@ -38,4 +38,7 @@ def build(env):
     env.substitutions = {"board_has_logger": False}
     env.template("../board.cpp.in", "board.cpp")
     env.copy('.')
-    env.collect(":build:openocd.source", "board/lpcxpresso_lpc11xx_stlink.cfg");
+
+    env.outbasepath = "modm/openocd/modm/board/"
+    env.copy(repopath("tools/openocd/modm/lpcxpresso_lpc11xx_stlink.cfg"), "lpcxpresso_lpc11xx_stlink.cfg")
+    env.collect(":build:openocd.source", "modm/board/lpcxpresso_lpc11xx_stlink.cfg");
