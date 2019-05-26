@@ -13,12 +13,15 @@
 
 def init(module):
     module.name = ":platform:gpio"
+    module.description = "General Purpose I/O (GPIO) of NPX LPC devices"
 
 def prepare(module, options):
     if not options[":target"].has_driver("gpio:lpc"):
+        print('Return False')
         return False
 
-    module.depends(":platform:core", ":platform:gpio.generic", ":platform:i2c.generic")
+    module.depends(":platform:core", ":architecture:gpio", ":utils") # ":platform:gpio.common") #, ":platform:i2c.generic")
+    print('Return truee')
     return True
 
 def build(env):
@@ -33,4 +36,7 @@ def build(env):
     env.outbasepath = "modm/src/modm/platform/gpio"
 
     env.template("gpio.hpp.in")
-    env.copy("gpio_enable.cpp")
+    env.template("base.hpp.in")
+    env.template("unused.hpp.in")
+    env.template("software_port.hpp.in")
+    # env.copy("gpio_enable.cpp")

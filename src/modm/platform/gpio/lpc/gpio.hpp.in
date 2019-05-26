@@ -28,37 +28,6 @@ namespace modm
 namespace platform
 {
 
-struct Gpio
-{
-	/// @ingroup	lpc11xx
-	enum class
-	InputType
-	{
-		Floating = (0 << 3),
-		PullDown = (1 << 3),
-		PullUp   = (2 << 3),
-		Repeater = (3 << 3),
-	};
-
-	/// @ingroup	lpc11xx
-	enum class
-	OutputType
-	{
-		PushPull  = (0 << 10),
-		OpenDrain = (1 << 10),
-	};
-
-	/// @ingroup	lpc11xx
-	enum class
-	I2cMode
-	{
-		StandardMode = (0<<8),
-		StandardIO   = (1<<8),
-		FastMode     = (2<<8),
-	};
-};
-
-
 /**
  * Gpio OpenDrain template, which remaps the behavior of the Gpio pin to
  * simulate an open-drain Output (with internal pullups if needed).
@@ -100,7 +69,7 @@ public:
 %% for gpio in driver.gpio
 	%% set functions = gpio.func.split(',')
 	%% set bits      = gpio.bits.split(',')
-	%% set pin  = gpio.id
+	%% set pin  = gpio.pin
 	%% if "define" in gpio
 		%% set conf_reg  = "LPC_IOCON->" ~ gpio.define
 	%% elif functions[0]|lower == 'reserved'
@@ -111,9 +80,9 @@ public:
 	%% set gpio_reg  = "LPC_GPIO" ~ gpio.port
 
 	%% for type in ["Output", "Input", ""]
-		%% set name = "Gpio" ~ type ~ gpio.port ~ "_" ~ gpio.id
+		%% set name = "Gpio" ~ type ~ gpio.port ~ "_" ~ gpio.pin
 
-/** \brief		{{gpio.port|upper}}{{gpio.id}} {{type}}
+/** \brief		{{gpio.port|upper}}{{gpio.pin}} {{type}}
  *  \ingroup	lpc11
  */
 class {{name}} : Gpio
