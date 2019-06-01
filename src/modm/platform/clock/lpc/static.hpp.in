@@ -34,6 +34,7 @@
 #define MODM_LPC__STATIC_HPP
 
 #include <stdint.h>		// uint32_t
+#include <modm/math/units.hpp>
 #include "../device.hpp"
 // #include "../../../type_ids.hpp"
 // #include "../generic/common_clock.hpp"
@@ -44,6 +45,8 @@ using namespace modm::clock;
 
 namespace modm::lpc
 {
+	using namespace modm::literals;
+
 	/*
 	 * Used to setup pll with constants
 	 */
@@ -66,20 +69,20 @@ namespace modm::lpc
 	};
 
 %% set internalClock =		{'name': "InternalClock",
-							 'fixedFrequency': "MHz12" }
+							 'fixedFrequency': "12_MHz" }
 %% set externalClock =		{'name': "ExternalClock",
-							 'minFrequency': "MHz1",
-							 'maxFrequency': "MHz25" }
+							 'minFrequency': "1_MHz",
+							 'maxFrequency': "25_MHz" }
 %% set externalCrystal =	{'name': "ExternalCrystal",
-							 'minFrequency': "MHz1",
-							 'maxFrequency': "MHz25" }
+							 'minFrequency': "1_MHz",
+							 'maxFrequency': "25_MHz" }
 %% set pll =				{'name': "Pll",
 							 'setup': "PllSetup",
 							 'sources': [internalClock,
 										externalClock, externalCrystal] }
 %% set systemClock =		{'name': "SystemClock",
-							 'minFrequency': "MHz1",
-							 'maxFrequency': "MHz48",
+							 'minFrequency': "1_MHz",
+							 'maxFrequency': "48_MHz",
 							 'sources': [ internalClock, externalClock,
 										  externalCrystal, pll ],
 							 'sinks': ["Can"] }

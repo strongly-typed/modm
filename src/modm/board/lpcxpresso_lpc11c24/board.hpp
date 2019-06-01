@@ -18,41 +18,45 @@
 
 using namespace modm::platform;
 
-/// @ingroup modm_board_disco_l476vg
+/// @ingroup modm_board_lpcxpresso_lpc11c24
 namespace Board
 {
-	using namespace modm::literals;
-
-/// STM32L4 running at 48MHz generated from the
-/// internal Multispeed oscillator
+using namespace modm::literals;
 
 // Dummy clock for devices
 struct SystemClock {
-	static constexpr uint32_t Frequency = 12_MHz;
+	static constexpr uint32_t Frequency = 48_MHz;
+	static constexpr uint32_t Ahb = Frequency;
+	static constexpr uint32_t Apb = Ahb;
 
 	static bool inline
 	enable()
 	{
-		// set flash latency first because system already runs from MSI
-		// Rcc::setFlashLatency<Frequency>();
+		// Set flash latency before switching to PLL
+		// assuming that running on PLL is faster than before
+		ClockControl::setFlashLatency<Frequency>();
+		
+		// enable external crystal
+		ClockControl::enableExternalCrystal<12_MHz>();
 
-		// Rcc::enableMultiSpeedInternalClock(Rcc::MsiFrequency::MHz48);
+		// Enable PLL
+		// f_cco = 48 MHz * (M=4) = 192 MHz
+		// f_cpu = f_cco   / (2 * P)
+		//       = 192 MHz / (2 * 2) = 48 MHz
+		// 156 MHz <= f_cco <= 320 MHz
+		ClockControl::enablePll(ClockControl::PllSource::ExternalCrystal, /* pllM */ 4, /* pllP */1);
 
-		// Rcc::enablePll(
-		// 	Rcc::PllSource::MultiSpeedInternalClock,
-		// 	1,	// 4MHz / N=1 -> 4MHz
-		// 	16,	// 4MHz * M=16 -> 64MHz <= 344MHz = PLL VCO output max, >= 64 MHz = PLL VCO out min
-		// 	1,	// 64MHz / P=1 -> 64MHz = F_cpu
-		// 	2	// 64MHz / Q=2 -> 32MHz = F_usb
-		// );
-		// switch system clock to PLL output
-		// Rcc::enableSystemClock(Rcc::SystemClockSource::Pll);
-		// Rcc::setAhbPrescaler(Rcc::AhbPrescaler::Div1);
-		// APB1 has max. 50MHz
-		// Rcc::setApb1Prescaler(Rcc::Apb1Prescaler::Div2);
-		// Rcc::setApb2Prescaler(Rcc::Apb2Prescaler::Div1);
-		// update frequencies for busy-wait delay functions
-		// Rcc::updateCoreFrequency<Frequency>();
+		// Switch system clock to external crystal
+		// ClockControl::enableSystemClock(ClockControl::SystemClockSource::ExternalCrystal);
+
+		// Switch system clock to PLL
+		ClockControl::enableSystemClock(ClockControl::SystemClockSource::Pll);
+
+		// Set AHB to system clock, 48 MHz
+		ClockControl::setAhbPrescaler(1);
+
+		// Update frequencies for busy-wait delay functions
+		ClockControl::updateCoreFrequency<Frequency>();
 
 		return true;
 	}
@@ -71,7 +75,6 @@ initialize()
 	SystemClock::enable();
 	// SysTickTimer::initialize<SystemClock>();
 
-	// LedGreen::setOutput(modm::Gpio::Low);
 	LedRed::setOutput(modm::Gpio::Low);
 
 	// Button::setInput();
