@@ -108,7 +108,6 @@ public:
 
 		// maximum rise time: assuming its linear:
 		// 1000ns @ 100kHz and 300ns @ 400kHz
-		//   => y = x * m + b, with m = -2.3333ns/kHz, b = 1'233.3333ns
 		constexpr float max_rise_time = -2.333333f * (float(baudrate) / 1'000.f) + 1'233.333333f;
 		// calculate trise
 		constexpr float trise_raw = max_rise_time < 0 ? 0 : std::floor(max_rise_time / (1'000.f / freq));
