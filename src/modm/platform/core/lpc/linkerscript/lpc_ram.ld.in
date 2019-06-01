@@ -37,7 +37,7 @@ SECTIONS
 	/* TABLES! TABLES! ALL THE TABLES YOU COULD EVER WANT! TABLES! */
 {{ linker.section_table_zero(["bss"]) }}
 
-%% set copy_table = ["data"]
+%% set copy_table = ["data", "fastdata"]
 {{ linker.section_table_copy(copy_table) }}
 
 {{ linker.section_table_extern() }}
