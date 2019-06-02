@@ -73,7 +73,7 @@ inline void
 initialize()
 {
 	SystemClock::enable();
-	// SysTickTimer::initialize<SystemClock>();
+	SysTickTimer::initialize<SystemClock>();
 
 	LedRed::setOutput(modm::Gpio::Low);
 
