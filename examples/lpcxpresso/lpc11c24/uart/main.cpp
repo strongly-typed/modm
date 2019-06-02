@@ -11,8 +11,7 @@
 
 #include <modm/board.hpp>
 #include <modm/debug/logger.hpp>
-
-using namespace Board;
+using namespace modm::literals;
 
 // ----------------------------------------------------------------------------
 // Set the log level
@@ -23,16 +22,24 @@ using namespace Board;
 int
 main()
 {
-	initialize();
+	Board::initialize();
 
+	Board::LedRed::set();
+
+	// Enable UART 1
 	Uart1::connect<GpioOutput1_7::Tx>();
-
-	LedRed::reset();
+	Uart1::initialize<Board::SystemClock, 9600_Bd>();
 
 	while (true)
 	{
-		LedRed::toggle();
-		modm::delayMilliseconds(50);
+		static uint8_t c = 'A';
+		Board::LedRed::toggle();
+		Uart1::write(c);
+		++c;
+		if (c > 'Z') {
+			c = 'A';
+		}
+		modm::delayMilliseconds(500);
 	}
 
 	return 0;
