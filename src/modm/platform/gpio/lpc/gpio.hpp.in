@@ -86,7 +86,7 @@ public:
 /** \brief		{{gpio.port|upper}}{{gpio.pin}} {{type}}
  *  \ingroup	lpc11
  */
-class {{name}} : Gpio
+class Old{{name}} : Gpio
 {
 // TODO: Add connect method in order to set function
 public:
@@ -102,7 +102,7 @@ public:
 	modm_always_inline static void
 	selectFunction(Function f){
 		uint32_t temp;
-		temp = {{ conf_reg }} & ~(7<<0);	// FUNC REG is 3 bits wide
+		temp = {{ conf_reg }} & ~(0b111 << 0);	// FUNC REG is 3 bits wide
 		temp |= static_cast<uint32_t>(f);
 		{{ conf_reg }} = temp;
 	}
@@ -112,7 +112,7 @@ public:
 	modm_always_inline static void
 	configure(I2cMode mode) {
 		uint32_t temp;
-		temp = {{ conf_reg }} & ~(3<<8);
+		temp = {{ conf_reg }} & ~(0b11 << 8);
 		temp |= static_cast<uint32_t>(mode);
 		{{ conf_reg }} = temp;
 	}

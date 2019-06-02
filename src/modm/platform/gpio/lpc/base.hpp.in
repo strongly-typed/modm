@@ -15,12 +15,9 @@
 #include "../device.hpp"
 #include <modm/architecture/interface/gpio.hpp>
 #include <modm/math/utils/bit_operation.hpp>
-// #include <modm/platform/core/peripherals.hpp>
+#include <modm/platform/core/peripherals.hpp>
 
-namespace modm
-{
-
-namespace platform
+namespace modm::platform
 {
 
 /// @ingroup modm_platform_gpio
@@ -49,22 +46,11 @@ struct Gpio
 	enum class
 	I2cMode
 	{
-		StandardMode = (0<<8),
-		StandardIO   = (1<<8),
-		FastMode     = (2<<8),
+		StandardMode = (0 << 8),
+		StandardIO   = (1 << 8),
+		FastMode     = (2 << 8),
 	};
 
-	
-	enum class
-	OutputSpeed
-	{
-		Low    = 0x2,
-		Medium = 0x1,
-		High   = 0x3,
-		MHz2   = Low,
-		MHz10  = Medium,
-		MHz50  = High,
-	};
 
 	/// Each External Interrupt can be configured to trigger on these conditions.
 	enum class
@@ -80,14 +66,18 @@ struct Gpio
 	enum class
 	Port
 	{
-        // ...
+%% for port in ports
+		{{ port }} = {{ port | modm.ord }},
+%% endfor
 	};
 
 	enum class
 	Signal
 	{
 		BitBang,
-        // ...
+%% for signal in all_signals
+		{{ signal }},
+%% endfor
 	};
 
 protected:
@@ -100,8 +90,6 @@ protected:
 
 };
 
-} // namespace platform
-
-} // namespace modm
+} // namespace modm::platform
 
 #endif // MODM_LPC_GPIO_BASE_HPP

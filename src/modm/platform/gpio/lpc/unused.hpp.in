@@ -82,8 +82,8 @@ public:
 	static void toggle() {}
 	static bool isSet() { return false; }
 	// stop documentation inherited
-	static void configure(OutputType, OutputSpeed = OutputSpeed::MHz50) {}
-	static void setOutput(OutputType, OutputSpeed = OutputSpeed::MHz50) {}
+	static void configure(OutputType) {}
+	static void setOutput(OutputType) {}
 
 	// GpioInput
 	// start documentation inherited

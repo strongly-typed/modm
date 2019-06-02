@@ -87,20 +87,20 @@ public:
 	inline static void set(bool status) { PinSet::set(status); }
 	inline static void reset() { PinSet::reset(); }
 	inline static void toggle() {
-		if (isSet()) reset();
-		else         set();
+		if (isSet()) { reset(); }
+		else         { set(); }
 	}
 	inline static bool isSet() { return ({{reg}}->ODR & mask); }
 	// stop documentation inherited
 	inline static void configure(OutputType type, OutputSpeed speed = OutputSpeed::MHz50) { PinSet::configure(type, speed); }
-	inline static void setOutput(OutputType type, OutputSpeed speed = OutputSpeed::MHz50)  { PinSet::setOutput(type, speed); }
+	inline static void setOutput(OutputType type, OutputSpeed speed = OutputSpeed::MHz50) { PinSet::setOutput(type, speed); }
 	// GpioInput
 	// start documentation inherited
 	inline static void setInput() { PinSet::setInput(); }
 	inline static bool read() { return ({{reg}}->IDR & mask); }
 	// end documentation inherited
 	inline static void configure(InputType type) { PinSet::configure(type); }
-	inline static void setInput(InputType type) { PinSet::setInput(type); }
+	inline static void setInput(InputType type)  { PinSet::setInput(type); }
 	// External Interrupts
 	// Warning: This will disable any previously enabled interrupt which is
 	// routed to the same interupt line, e.g. PA3 will disable PB3.
@@ -211,7 +211,7 @@ public:
 private:
 	template< Peripheral peripheral >
 	static constexpr int8_t AdcChannel = -1;
-};
+}; // class Gpio
 
 /// @cond
 template<>
