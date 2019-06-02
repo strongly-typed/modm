@@ -79,13 +79,25 @@ public:
 
 public:
 	// GPIO Input
-	static void configure(InputType /* type */) {
+	static void configure(const InputType type) {
+		uint32_t temp;
+		temp = {{ conf_reg }} & ~static_cast<uint32_t>(InputType::Repeater);
+		temp |= static_cast<uint32_t>(type);
+		{{ conf_reg }} = temp;
 	}
 
 	static void setInput() {
+		// setAlternateFunction(0);
+		{{ gpio_reg }}->DIR &= ~(1 << {{ pin}});
 	}
 
-	static void setInput(InputType /* type */) {
+	static void setInput(const InputType type) {
+		configure(type);
+		setInput();
+	}
+
+	static bool read() {
+		return ({{ gpio_reg }}->MASKED_ACCESS[1 << {{ pin }}]) >> {{ pin }};
 	}
 
 public:
@@ -110,10 +122,6 @@ public:
 	using Type = Gpio{{ port }}_{{ pin }};
 	static constexpr Port port = Port::PIO_{{ port }}; ///< Port name
 	static constexpr uint8_t pin = {{ pin }}; ///< Pin number
-
-protected:
-	/// Bitmask for registers that contain a 1bit value for every pin.
-	static constexpr uint16_t mask  = 0x1 << pin;
 
 protected:
 	inline static void setAlternateFunction(const uint8_t af) {
@@ -147,16 +155,27 @@ public:
 	// end documentation inherited
 	inline static void configure(InputType type) { PinSet::configure(type); }
 	inline static void setInput(InputType type) { PinSet::setInput(type); }
+
 	// External Interrupts
-	// Warning: This will disable any previously enabled interrupt which is
-	// routed to the same interupt line, e.g. PA3 will disable PB3.
-	// This is a hardware limitation by the STM32 EXTI.
-	inline static void enableExternalInterrupt()
-	{
-		// Todo
+	// Todo
+
+	inline static void disconnect() {
+		setInput(InputType::Floating);
+		setAlternateFunction(0);
 	}
 
-
+public:
+#ifdef __DOXYGEN__
+	/// @{
+	/// Connect to any software peripheral
+	using BitBang = GpioSignal;
+	%% for name, group in signals.items()
+	/// Connect to {% for sig in group %}{{ sig.driver }}{{ "" if loop.last else " or "}}{% endfor %}
+	using {{ name }} = GpioSignal;
+	%% endfor
+	/// @}
+#endif
+	/// @cond
 	template< Peripheral peripheral >
 	struct BitBang { static void connect();
 		static_assert(
@@ -173,6 +192,7 @@ public:
 			"Gpio{{ port }}_{{ pin }}::{{ signal_name }} only connects to {% for signal in signal_group %}{{signal.driver}}{% if not loop.last %} or {% endif %}{% endfor %}!");
 	};
 	%% endfor
+	/// @endcond
 }; // class Gpio
 
 /// @cond
