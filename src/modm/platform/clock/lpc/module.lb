@@ -33,7 +33,7 @@ def build(env):
     driver = device.get_driver("clock")
 
     properties = device.properties
-    pp(properties)
+    # pp(properties)
 
     properties["target"] = target = device.identifier
     properties["partname"] = device.partname
