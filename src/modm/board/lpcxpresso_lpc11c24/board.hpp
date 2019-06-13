@@ -28,6 +28,7 @@ struct SystemClock {
 	static constexpr uint32_t Frequency = 48_MHz;
 	static constexpr uint32_t Ahb = Frequency;
 	static constexpr uint32_t Apb = Ahb;
+	static constexpr uint32_t Can = Apb;
 
 	static bool inline
 	enable()
