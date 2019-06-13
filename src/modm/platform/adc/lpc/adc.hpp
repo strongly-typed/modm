@@ -14,7 +14,10 @@
 #ifndef MODM_LPC111X_ADC_HPP
 #define MODM_LPC111X_ADC_HPP
 
-#include "../device.h"
+#include "../device.hpp"
+#include <modm/architecture/interface/adc.hpp>
+#include <modm/architecture/interface/clock.hpp>
+using namespace modm::literals;
 
 /* ---------- ADC Data Register bit names --------------------*/
 #define ADC_GDR_DONE (1 << 31)
