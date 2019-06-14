@@ -13,8 +13,10 @@
  *
  * VCC of CAN (pin 20) MUST be supplied with 5.0V (4.5 ... 5.5V).
  * 3.3 V definitely does not work.
+ * For the LPCXpresso board this means connecting 5.0V to lowest left connector
+ * of the programming interface (PSU_VBUSX) is necessary.
  *
- * The LPC11C24 itself must be supplied with 3.3V. It does not work with 5.0V. 
+ * The LPC11C24 itself must be supplied with 3.3V. It dies with 5.0V.
  */
 // ----------------------------------------------------------------------------
 
@@ -25,7 +27,7 @@ using namespace modm::literals;
 // ----------------------------------------------------------------------------
 // Set the log level
 #undef	MODM_LOG_LEVEL
-#define	MODM_LOG_LEVEL modm::log::INFO
+#define	MODM_LOG_LEVEL modm::log::DEBUG
 
 // Create an IODeviceWrapper around the Uart Peripheral we want to use
 using Uart = Uart1;
