@@ -27,9 +27,7 @@ using namespace modm::literals;
 
 #define LPC11C_ROM_CAN (*((ROM **)0x1fff1ff8))
 
-namespace modm
-{
-namespace platform
+namespace modm::platform
 {
 /**
  * \brief	The CAN bus driver for LPC11Cxx devices.
@@ -197,7 +195,6 @@ protected:
 	CAN_error(uint32_t error_info);
 };
 
-} // namespace platform
-} // modm namespace
+} // namespace modm::platform
 
 #endif // MODM_LPC11C_C_CAN_HPP
