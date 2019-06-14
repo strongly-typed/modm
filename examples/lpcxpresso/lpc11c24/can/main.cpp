@@ -11,6 +11,12 @@
 /*
  * Minimal CAN example for LPC11C24 on LPCXpresso board.
  *
+ * It sends an extended CAN message with increasing data every 5 seconds.
+ * It receives any extended CAN message (not to normal messages yet (!)).
+ * Use
+ *   send 00000001 1 12
+ * in CAN2USB to send a message with extended identifier.
+ *
  * VCC of CAN (pin 20) MUST be supplied with 5.0V (4.5 ... 5.5V).
  * 3.3 V definitely does not work.
  * For the LPCXpresso board this means connecting 5.0V to lowest left connector
@@ -22,6 +28,7 @@
 
 #include <modm/board.hpp>
 #include <modm/debug/logger.hpp>
+#include <modm/processing.hpp>
 using namespace modm::literals;
 
 // ----------------------------------------------------------------------------
@@ -51,6 +58,13 @@ main()
 	MODM_LOG_DEBUG << "Hello to C_CAN demo." << modm::endl;
 
 	modm::platform::Can::initialize<Board::SystemClock, 125_kHz>();
+	// Receive every extended message
+	CanFilter::setFilter(
+		/* id        */ CanFilter::ExtendedIdentifier(0),
+		/* mask      */ CanFilter::ExtendedFilterMask(0),
+		/* first mob */ 0,
+		/* size      */ 16
+	);
 
 	if (modm::platform::Can::isReadyToSend()){
 		MODM_LOG_DEBUG << "Ready to send." <<  modm::endl;
@@ -64,15 +78,24 @@ main()
 	msg.setExtended(true);
 	msg.data[0] = 0x11;
 
+	modm::ShortPeriodicTimer timer(5000);
+
 	while (true)
 	{
-		// Success only acknowledge the successful transmission to the CAN controller.
-		// It does not guarantee that the messages was placed on the bus.
-		MODM_LOG_DEBUG << (Can::sendMessage(msg) ? "success" : "fail") << modm::endl;
+		if (timer.execute()) {
+			// Success only acknowledge the successful transmission to the CAN controller.
+			// It does not guarantee that the messages was placed on the bus.
+			MODM_LOG_DEBUG << (Can::sendMessage(msg) ? "success" : "fail") << modm::endl;
 
-		Board::LedRed::toggle();
-		modm::delayMilliseconds(1000);
-		++msg.data[0];
+			Board::LedRed::toggle();
+			++msg.data[0];
+		}
+
+		modm::can::Message rxMsg;
+		if (Can::getMessage(rxMsg)) {
+			MODM_LOG_DEBUG << rxMsg << modm::endl;
+			MODM_LOG_DEBUG << (Can::sendMessage(rxMsg) ? "reply success" : "reply fail") << modm::endl;
+		}
 	}
 	return 0;
 }
