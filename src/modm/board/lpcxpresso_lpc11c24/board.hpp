@@ -36,7 +36,7 @@ struct SystemClock {
 		// Set flash latency before switching to PLL
 		// assuming that running on PLL is faster than before
 		ClockControl::setFlashLatency<Frequency>();
-		
+
 		// enable external crystal
 		ClockControl::enableExternalCrystal<12_MHz>();
 

@@ -134,7 +134,7 @@ public:
 
 	template< uint32_t Core_Hz >
 	static void
-	updateCoreFrequency();	
+	updateCoreFrequency();
 };
 } // modm::platform namespace
 

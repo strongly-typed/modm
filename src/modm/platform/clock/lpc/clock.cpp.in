@@ -63,7 +63,7 @@ modm::platform::ClockControl::enablePll(PllSource source, uint8_t pllM, uint8_t 
 	// SYSPLLCLKSEL
 	LPC_SYSCON->SYSPLLCLKSEL = (LPC_SYSCON->SYSPLLCLKSEL & 0b11)
 								| static_cast<uint32_t>(source);
-	
+
 	// toggle update enable register
 	LPC_SYSCON->SYSPLLCLKUEN = 0x01;
 	LPC_SYSCON->SYSPLLCLKUEN = 0x00;
@@ -100,7 +100,7 @@ modm::platform::ClockControl::enableSystemClock(SystemClockSource src, uint32_t 
 	// wait until updated
 	while (not(LPC_SYSCON->MAINCLKUEN & 0x01)) {
 		if (not --waitCycles)
-			return false;		
+			return false;
 	}
 
 	// TODO: do not enable gpio clock here but in startup.c.in form gpio driver

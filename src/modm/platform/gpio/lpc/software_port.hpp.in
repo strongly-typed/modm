@@ -54,7 +54,7 @@ public:
 	{ return ::modm::GpioPort::DataOrder::Normal; }
 
 protected:
-	
+
 
 //
 
