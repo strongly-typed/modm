@@ -10,29 +10,50 @@
 // ----------------------------------------------------------------------------
 
 #include <modm/board.hpp>
+#include <modm/debug/logger.hpp>
+using namespace modm::literals;
 
-using namespace Board;
+// ----------------------------------------------------------------------------
+// Set the log level
+#undef	MODM_LOG_LEVEL
+#define	MODM_LOG_LEVEL modm::log::INFO
+
+// Create an IODeviceWrapper around the Uart Peripheral we want to use
+modm::IODeviceWrapper< Uart1, modm::IOBuffer::BlockIfFull > loggerDevice;
+
+// Set all four logger streams to use the UART
+modm::log::Logger modm::log::debug(loggerDevice);
+modm::log::Logger modm::log::info(loggerDevice);
+modm::log::Logger modm::log::warning(loggerDevice);
+modm::log::Logger modm::log::error(loggerDevice);
 
 // ----------------------------------------------------------------------------
 int
 main()
 {
-	initialize();
+	Board::initialize();
 
-	LedRed::reset();
+	Board::LedRed::reset();
 
+	// Enable UART 1
+	Uart1::connect<GpioOutput1_7::Tx>();
+	Uart1::initialize<Board::SystemClock, 9600_Bd>();
+
+	// Enable Adc
 	using Adc = modm::platform::AdcManualSingle;
 
 	Adc::initialize();
+	Adc::configurePins(0x01);
 
 	while (true)
 	{
-		LedRed::toggle();
+		Board::LedRed::toggle();
 		Adc::startConversion(Adc::ChannelMask::CHANNEL_0);
 		while (not Adc::isConversionFinished() )
 			{};
 		uint16_t result = Adc::getValue();
-		modm::delayMilliseconds(500);
+		MODM_LOG_INFO << "Adc = " << result << modm::endl;
+		modm::delayMilliseconds(100);
 	}
 
 	return 0;
