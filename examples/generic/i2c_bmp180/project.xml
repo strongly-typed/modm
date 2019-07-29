@@ -1,0 +1,20 @@
+<library>
+  <extends>modm:nucleo-f303k8</extends>
+  <options>
+    <option name="modm:build:build.path">../../../build/generic/blink</option>
+  </options>
+  <modules>
+    <!-- Build tools -->
+    <module>modm:build:scons</module>
+    <!-- Hardware interfaces -->
+    <module>modm:platform:i2c:1</module>
+    <module>modm:platform:1-wire.bitbang</module>
+    <!-- Sensor drivers -->
+    <module>modm:driver:bmp085</module>
+    <module>modm:driver:lm75</module>
+    <module>modm:driver:ds18b20</module>
+    <!-- Threading and timing utils -->
+    <module>modm:processing:timer</module>
+    <module>modm:processing:protothread</module>
+  </modules>
+</library>
