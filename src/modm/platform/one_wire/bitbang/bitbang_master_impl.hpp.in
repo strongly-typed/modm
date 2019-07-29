@@ -270,10 +270,10 @@ modm::platform::BitBangOneWireMaster<Pin>::performSearch()
 	bool searchResult = false;
 
 	// if the last call was not the last one
-	if (!lastDeviceFlag)
+	if (not lastDeviceFlag)
 	{
 		// 1-Wire reset
-		if (!touchReset())
+		if (not touchReset())
 		{
 			// reset the search
 			lastDiscrepancy = 0;
@@ -302,7 +302,7 @@ modm::platform::BitBangOneWireMaster<Pin>::performSearch()
 			bool complementIdBit = readBit();
 
 			// check for no devices on 1-wire
-			if ((idBit == true) && (complementIdBit == true)) {
+			if ((idBit == true) and (complementIdBit == true)) {
 				break;
 			}
 			else
@@ -362,7 +362,7 @@ modm::platform::BitBangOneWireMaster<Pin>::performSearch()
 		while(romByteNumber < 8);  // loop until through all ROM bytes 0-7
 
 		// if the search was successful then
-		if (!((idBitNumber < 65) || (crc8 != 0)))
+		if (not((idBitNumber < 65) or (crc8 != 0)))
 		{
 			// search successful
 			lastDiscrepancy = lastZeroBit;
@@ -375,7 +375,7 @@ modm::platform::BitBangOneWireMaster<Pin>::performSearch()
 	}
 
 	// if no device found then reset counters so next 'search' will be like a first
-	if (!searchResult || !romBuffer[0])
+	if ((not searchResult) or (not romBuffer[0]))
 	{
 		lastDiscrepancy = 0;
 		lastDeviceFlag = false;

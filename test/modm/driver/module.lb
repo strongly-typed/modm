@@ -23,6 +23,7 @@ def prepare(module, options):
         ":driver:ad7280a",
         ":driver:bme280",
         ":driver:bmp085",
+        ":driver:ds18b20",
         ":driver:lawicel",
         ":driver:ltc2984",
         ":driver:drv832x_spi",

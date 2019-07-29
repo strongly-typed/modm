@@ -17,8 +17,24 @@
 
 #include <cstring>		// for std::memcpy
 
+#include <modm/debug/logger.hpp>
+
+#ifdef  MODM_LOG_LEVEL
+#undef	MODM_LOG_LEVEL
+#endif
+#define	MODM_LOG_LEVEL modm::log::DEBUG
+
 template <typename OneWire>
-modm::Ds18b20<OneWire>::Ds18b20(const uint8_t *rom)
+modm::Ds18b20<OneWire>::Ds18b20(Data &data, const uint8_t *rom) :
+	data(data)
+{
+	std::memcpy(this->identifier, rom, 8);
+}
+
+// ----------------------------------------------------------------------------
+template <typename OneWire>
+void
+modm::Ds18b20<OneWire>::setIdentifier(const uint8_t *rom)
 {
 	std::memcpy(this->identifier, rom, 8);
 }
@@ -46,7 +62,7 @@ void
 modm::Ds18b20<OneWire>::startConversions()
 {
 	//Reset the bus / Initialization
-	if (!ow.touchReset()) {
+	if (not ow.touchReset()) {
 		//no devices detected
 		return;
 	}
@@ -67,39 +83,41 @@ modm::Ds18b20<OneWire>::isConversionDone()
 
 // ----------------------------------------------------------------------------
 template <typename OneWire>
-int16_t
-modm::Ds18b20<OneWire>::readTemperature()
+bool
+// modm::Ds18b20<OneWire>::readTemperature(int16_t &temperature)
+modm::Ds18b20<OneWire>::readout()
 {
 	selectDevice();
 	ow.writeByte(this->READ_SCRATCHPAD);
 
-	// Read the first bytes of the scratchpad memory
-	// and then send a reset because we do not want the other bytes
+	static constexpr uint8_t scratchpad_size = 9;
+	uint8_t scratchpad[scratchpad_size];
 
-	int16_t temp = ow.readByte();
-	temp |= (ow.readByte() << 8);
+	// Read data
+	uint8_t crc = 0;
+	for (uint8_t ii = 0; ii < scratchpad_size; ++ii) {
+		scratchpad[ii] = ow.readByte();
+	}
 
-	// ignore next two bytes
-	ow.readByte();
-	ow.readByte();
+	// CRC Check
+	for (uint8_t ii = 0; ii < 8; ++ii) {
+		crc = ow.crcUpdate(crc, scratchpad[ii]);
+	}
 
-	// read config register byte
-	uint8_t config = (ow.readByte() >> 5) & 0x03;
+	// MODM_LOG_DEBUG.printf("calculated crc: %02x \n\r", crc);
+	// MODM_LOG_DEBUG.printf("read crc: %02x \n\r", scratchpad[8]);
 
-	ow.touchReset();
+	data.updateConfig(scratchpad);
 
-	// Calculate conversion factor depending on the sensors resolution
-	//  9 bit = 0.5 °C steps
-	// 10 bit = 0.25 °C steps
-	// etc.
-	(void) config;
+	crc_match = (crc == scratchpad[8]);
 
-	int32_t convertedTemperature = 625L * temp;
+	if (crc_match) {
+		data.updateTemperature(scratchpad);
+	} else {
+		MODM_LOG_ERROR.printf("CRC mismatch. Read: %x, Expected: %x\n", crc, scratchpad[8]);
+	}
 
-	// round to centi-degree
-	convertedTemperature = (convertedTemperature + 50) / 100;
-
-	return (static_cast<int16_t>(convertedTemperature));
+	return crc_match;
 }
 
 // ----------------------------------------------------------------------------
@@ -108,15 +126,15 @@ bool
 modm::Ds18b20<OneWire>::selectDevice()
 {
 	// Reset the bus / Initialization
-	if (!ow.touchReset()) {
+	if (not ow.touchReset()) {
 		// no devices detected
 		return false;
 	}
 
 	ow.writeByte(one_wire::MATCH_ROM);
 
-	for (uint8_t i = 0; i < 8; ++i) {
-		ow.writeByte(this->identifier[i]);
+	for (uint8_t ii = 0; ii < 8; ++ii) {
+		ow.writeByte(this->identifier[ii]);
 	}
 
 	return true;

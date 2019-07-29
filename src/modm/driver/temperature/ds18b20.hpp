@@ -15,97 +15,135 @@
 
 #include <modm/architecture/interface/one_wire.hpp>
 
+#include "ds18b20_data.hpp"
+
 namespace modm
 {
+
+template < typename OneWire >
+class Ds18b20;
+
+struct ds18b20
+{
+
+using Data = modm::ds18b20data::Data;
+
+};
+
+/**
+ * \todo	Implement the configure() method to set the resolution
+ * 			and the temperature alarm functionality
+ *
+ * \author	Fabian Greif
+ * \ingroup	modm_driver_ds18b20
+ */
+template <typename OneWire>
+class Ds18b20 : public ds18b20
+{
+public:
 	/**
-	 * \todo	Implement the configure() method to set the resolution
-	 * 			and the temperature alarm functionality
+	 * \brief	Constructor
 	 *
-	 * \author	Fabian Greif
-	 * \ingroup	modm_driver_ds18b20
+	 * Default resolution is 12-bit.
+	 *
+	 * \param 	rom		8-byte unique ROM number of the device
 	 */
-	template <typename OneWire>
-	class Ds18b20
-	{
-	public:
-		/**
-		 * \brief	Constructor
-		 *
-		 * Default resolution is 12-bit.
-		 *
-		 * \param 	rom		8-byte unique ROM number of the device
-		 */
-		Ds18b20(const uint8_t *rom);
+	Ds18b20(Data &data, const uint8_t *rom);
 
-		// TODO
-		//void
-		//configure();
+	/// Constructor for setting address later
+	Ds18b20(Data &data) : data(data) {};
 
-		/**
-		 * \brief	Check if the device is present
-		 *
-		 * \return	\c true if the device is found, \c false if the
-		 * 			ROM number is not available on the bus.
-		 */
-		bool
-		isAvailable();
+	/**
+	 * \brief	Set the address after class is constructed
+	 *
+	 * When ds18b20 class is a member of a class, an address of a device should be set after device search.
+	 *
+	 * \param 	rom		8-byte unique ROM number of the device
+	**/
+	void
+	setIdentifier(const uint8_t *rom);
 
-		/**
-		 * \brief	Start the conversion of this device
-		 */
-		void
-		startConversion();
+	// TODO
+	//void
+	//configure();
 
-		/**
-		 * \brief	Start the conversion for all connected devices
-		 *
-		 * Uses the SKIP_ROM command to start the conversion on all
-		 * connected DS18B20 devices.
-		 *
-		 * \warning	Use this function with caution. If you have devices other
-		 * 			than the DS18B20 connected to your 1-wire bus check if
-		 * 			they tolerate the SKIP_ROM + CONVERT_T command.
-		 */
-		void
-		startConversions();
+	/**
+	 * \brief	Check if the device is present
+	 *
+	 * \return	\c true if the device is found, \c false if the
+	 * 			ROM number is not available on the bus.
+	 */
+	bool
+	isAvailable();
 
-		/**
-		 * \brief	Check if the last conversion is complete
-		 *
-		 * \return	\c true conversion complete, \n
-		 * 			\c false conversion in progress.
-		 */
-		bool
-		isConversionDone();
+	/**
+	 * \brief	Start the conversion of this device
+	 */
+	void
+	startConversion();
 
-		/**
-		 * \brief	Read the current temperature in centi-degree
-		 *
-		 * \todo	Needs a better output format
-		 * \return	temperature in centi-degree
-		 */
-		int16_t
-		readTemperature();
+	/**
+	 * \brief	Start the conversion for all connected devices
+	 *
+	 * Uses the SKIP_ROM command to start the conversion on all
+	 * connected DS18B20 devices.
+	 *
+	 * \warning	Use this function with caution. If you have devices other
+	 * 			than the DS18B20 connected to your 1-wire bus check if
+	 * 			they tolerate the SKIP_ROM + CONVERT_T command.
+	 */
+	void
+	startConversions();
 
-	protected:
-		/**
-		 * \brief	Select the current device
-		 */
-		bool
-		selectDevice();
+	/**
+	 * \brief	Check if the last conversion is complete
+	 *
+	 * \return	\c true conversion complete, \n
+	 * 			\c false conversion in progress.
+	 */
+	bool
+	isConversionDone();
 
-		uint8_t identifier[8];
+	/**
+	 * \brief	Read the current temperature from sensor to local storage
+	 *
+	 * \todo	Needs a better output format
+	 * \return	\c true if reading temperature is successful, \c false if it was not successful	
+	 */
+	bool
+	readout();
 
-		static const uint8_t CONVERT_T = 0x44;
-		static const uint8_t WRITE_SCRATCHPAD = 0x4e;
-		static const uint8_t READ_SCRATCHPAD = 0xbe;
-		static const uint8_t COPY_SCRATCHPAD = 0x48;
-		static const uint8_t RECALL_E2 = 0xb8;
-		static const uint8_t READ_POWER_SUPPLY = 0xb4;
+protected:
+	/**
+	 * \brief	Select the current device
+	 */
+	bool
+	selectDevice();
 
-		static OneWire ow;
-	};
-}
+	uint8_t identifier[8];
+	bool crc_match;
+
+	// Rom commands can be found pp.10-12 in the datasheet of ds18b20
+	static const uint8_t READ_ROM = 0x33;
+	static const uint8_t MATCH_ROM = 0x55;
+	static const uint8_t SKIP_ROM = 0xCC;
+	static const uint8_t ALARM_SEARCH = 0xEC;
+
+	// DS18B20 function commands
+	static const uint8_t CONVERT_T = 0x44;
+	static const uint8_t WRITE_SCRATCHPAD = 0x4e;
+	static const uint8_t READ_SCRATCHPAD = 0xbe;
+	static const uint8_t COPY_SCRATCHPAD = 0x48;
+	static const uint8_t RECALL_E2 = 0xb8;
+	static const uint8_t READ_POWER_SUPPLY = 0xb4;
+
+	static OneWire ow;
+
+private:
+	Data &data;
+};
+
+} // modm namespace
 
 #include "ds18b20_impl.hpp"
 

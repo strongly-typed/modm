@@ -45,3 +45,5 @@ def build(env):
     env.outbasepath = "modm/src/modm/driver/temperature"
     env.copy("ds18b20.hpp")
     env.copy("ds18b20_impl.hpp")
+    env.copy("ds18b20_data.hpp")
+    env.copy("ds18b20_data_impl.hpp")

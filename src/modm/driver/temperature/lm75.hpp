@@ -132,6 +132,8 @@ class Lm75 : public lm75, public I2cDevice< I2cMaster, 2 >
 public:
 	/// Constructor, requires a lm75::Data object,
 	/// sets address to default of 0x48 (7 alternative addresses up to 0x4F possible).
+	/// Sensors on pre-soldered boards have pull-ups or are floating on the address pins so
+	/// address might be undefined and must be properly defined in hardware.
 	Lm75(Data &data, uint8_t address=0x48);
 
 	modm::ResumableResult<bool>

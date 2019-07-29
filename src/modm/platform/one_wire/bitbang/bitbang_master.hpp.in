@@ -132,6 +132,9 @@ public:
 	 *
 	 * This will accelerate the search because only devices of the given
 	 * type will be considered.
+	 * Note that if no devices of the desired family are currently on the
+	 * 1-Wire, then another type will be found, so the family code in the
+	 * resulting rom must be verified after the search.
 	 */
 	static void
 	resetSearch(uint8_t familyCode);
@@ -158,10 +161,10 @@ public:
 	static void
 	searchSkipCurrentFamily();
 
-protected:
 	static uint8_t
 	crcUpdate(uint8_t crc, uint8_t data);
 
+protected:
 	/// Perform the actual search algorithm
 	static bool
 	performSearch();
