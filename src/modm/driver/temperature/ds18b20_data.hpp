@@ -61,9 +61,6 @@ public:
 
 protected:
 	void
-	updateConfig(uint8_t scratchpad[8]);
-
-	void
 	updateTemperature(uint8_t scratchpad[8]);
 
 protected:

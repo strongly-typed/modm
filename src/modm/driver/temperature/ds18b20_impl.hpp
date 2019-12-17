@@ -22,21 +22,53 @@
 #ifdef  MODM_LOG_LEVEL
 #undef	MODM_LOG_LEVEL
 #endif
-#define	MODM_LOG_LEVEL modm::log::DEBUG
+#define	MODM_LOG_LEVEL modm::log::DISABLE
 
 template <typename OneWire>
 modm::Ds18b20<OneWire>::Ds18b20(Data &data, const uint8_t *rom) :
-	data(data)
+	timeout(0), data(data)
 {
 	std::memcpy(this->identifier, rom, 8);
 }
 
 // ----------------------------------------------------------------------------
 template <typename OneWire>
-void
+bool
 modm::Ds18b20<OneWire>::setIdentifier(const uint8_t *rom)
 {
+	if (rom[0] != FAMILIY_CODE_DS18B20) {
+		MODM_LOG_ERROR.printf("Wrong familiy code in rom. Expected %02x, received %02x\n", FAMILIY_CODE_DS18B20, rom[0]);
+		return false;
+	}
 	std::memcpy(this->identifier, rom, 8);
+	return true;
+}
+
+// ----------------------------------------------------------------------------
+template <typename OneWire>
+bool
+modm::Ds18b20<OneWire>::configure(Resolution res, uint8_t upperAlarm, uint8_t lowerAlarm)
+{
+	if (not selectDevice()) {
+		MODM_LOG_WARNING.printf("Device not found");
+		return false;
+	}
+
+	ow.writeByte(WRITE_SCRATCHPAD);
+
+	ow.writeByte(upperAlarm);
+	ow.writeByte(lowerAlarm);
+	ow.writeByte(static_cast<uint8_t>(res));
+
+	// Readback to verify
+	// It is considered that the configure method is used seldom and thus the
+	// overhead of reading back can be accepted.
+	if (readScratchpad() and (static_cast<uint8_t>(res) == scratchpad[4])) {
+		return true;
+	} else {
+		MODM_LOG_ERROR.printf("configure: Readback failed. Expected: %02x, received: %02x\n", static_cast<uint8_t>(res), scratchpad[4]);
+		return false;
+	}
 }
 
 // ----------------------------------------------------------------------------
@@ -55,6 +87,9 @@ modm::Ds18b20<OneWire>::startConversion()
 	selectDevice();
 
 	ow.writeByte(CONVERT_T);
+
+	// Conversion will take 750 msec at 12 bits
+	timeout.restart(750);
 }
 
 template <typename OneWire>
@@ -72,12 +107,18 @@ modm::Ds18b20<OneWire>::startConversions()
 
 	// Issue Convert Temperature command
 	ow.writeByte(this->CONVERT_T);
+
+	// Conversion will take 750 msec at 12 bits
+	timeout.restart(750);
 }
 
 template <typename OneWire>
 bool
 modm::Ds18b20<OneWire>::isConversionDone()
 {
+	if (not timeout.isExpired()) {
+		return false;
+	}
 	return ow.readBit();
 }
 
@@ -87,37 +128,11 @@ bool
 // modm::Ds18b20<OneWire>::readTemperature(int16_t &temperature)
 modm::Ds18b20<OneWire>::readout()
 {
-	selectDevice();
-	ow.writeByte(this->READ_SCRATCHPAD);
-
-	static constexpr uint8_t scratchpad_size = 9;
-	uint8_t scratchpad[scratchpad_size];
-
-	// Read data
-	uint8_t crc = 0;
-	for (uint8_t ii = 0; ii < scratchpad_size; ++ii) {
-		scratchpad[ii] = ow.readByte();
-	}
-
-	// CRC Check
-	for (uint8_t ii = 0; ii < 8; ++ii) {
-		crc = ow.crcUpdate(crc, scratchpad[ii]);
-	}
-
-	// MODM_LOG_DEBUG.printf("calculated crc: %02x \n\r", crc);
-	// MODM_LOG_DEBUG.printf("read crc: %02x \n\r", scratchpad[8]);
-
-	data.updateConfig(scratchpad);
-
-	crc_match = (crc == scratchpad[8]);
-
-	if (crc_match) {
+	if (readScratchpad()) {
 		data.updateTemperature(scratchpad);
-	} else {
-		MODM_LOG_ERROR.printf("CRC mismatch. Read: %x, Expected: %x\n", crc, scratchpad[8]);
+		return true;
 	}
-
-	return crc_match;
+	return false;
 }
 
 // ----------------------------------------------------------------------------
@@ -138,4 +153,40 @@ modm::Ds18b20<OneWire>::selectDevice()
 	}
 
 	return true;
+}
+
+// ----------------------------------------------------------------------------
+template <typename OneWire>
+bool
+modm::Ds18b20<OneWire>::readScratchpad()
+{
+	if (not selectDevice()) {
+		MODM_LOG_WARNING.printf("Device not found");
+		return false;
+	}
+	ow.writeByte(this->READ_SCRATCHPAD);
+
+	// Read data
+	uint8_t crc = 0;
+	for (uint8_t ii = 0; ii < scratchpad_size; ++ii) {
+		scratchpad[ii] = ow.readByte();
+	}
+
+	// CRC Check
+	for (uint8_t ii = 0; ii < 8; ++ii) {
+		crc = ow.crcUpdate(crc, scratchpad[ii]);
+	}
+
+	// MODM_LOG_DEBUG.printf("calculated crc: %02x\n", crc);
+	// MODM_LOG_DEBUG.printf("read crc: %02x\n", scratchpad[8]);
+
+	MODM_LOG_DEBUG.printf("config: %02x\n", scratchpad[4]);
+
+	bool crc_match = (crc == scratchpad[8]);
+
+	if (not crc_match) {
+		MODM_LOG_DEBUG.printf("CRC did not match. Expected: %02x, received: %02x\n", crc, scratchpad[8]);
+	}
+
+	return crc_match;
 }

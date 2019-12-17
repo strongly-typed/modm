@@ -39,6 +39,7 @@ Features:
 
 def prepare(module, options):
     module.depends(":architecture:1-wire")
+    module.depends(":processing:timer")
     return True
 
 def build(env):

@@ -58,7 +58,7 @@ Ds18b20Thread<OneWireMaster>::update()
 		}
 		MODM_LOG_DEBUG << modm::ascii << " ";
 
-		if (rom[0] == 0x28) {
+		if (rom[0] == ds18b20.FAMILIY_CODE_DS18B20) {
 			MODM_LOG_DEBUG << "DS18B20";
 		} else if (rom[0] == 0x10) {
 			MODM_LOG_DEBUG << "DS18S20";
@@ -73,24 +73,7 @@ Ds18b20Thread<OneWireMaster>::update()
 	MODM_LOG_DEBUG << MODM_FILE_INFO;
 	MODM_LOG_DEBUG << "1-Wire search finished!" << modm::endl;
 
-	// search for connected DS18S20 devices
-	// MODM_LOG_DEBUG << MODM_FILE_INFO;
-	// MODM_LOG_DEBUG << "1-Wire Looking for DS18B20 (0x10):" << modm::endl;
-	// OneWireMaster::resetSearch(0x10);
-
-	// while (OneWireMaster::searchNext(rom)) {
-	// 	MODM_LOG_DEBUG << MODM_FILE_INFO;
-	// 	MODM_LOG_DEBUG << "1-Wire found: " << modm::hex;
-	// 	for (uint8_t ii = 0; ii < 8; ++ii) {
-	// 		MODM_LOG_DEBUG << rom[ii];
-	// 	}
-	// 	MODM_LOG_DEBUG << modm::ascii << modm::endl;
-	// 	this->timeout.restart(100);
-	// 	PT_WAIT_UNTIL(this->timeout.isExpired());
-	// }
-	// MODM_LOG_DEBUG << MODM_FILE_INFO;
-	// MODM_LOG_DEBUG << "1-Wire search finished!" << modm::endl;
-
+	// Monitor the first device that was found
 	ds18b20.setIdentifier(rom);
 
 	// ping the device until it responds
@@ -110,6 +93,11 @@ Ds18b20Thread<OneWireMaster>::update()
 		PT_WAIT_UNTIL(start_measurement);
 
 		ds18b20.startConversion();
+
+		for (uint16_t ii = 0; ii < 1000; ++ii) {
+			// MODM_LOG_DEBUG.printf("%d", ds18b20.isConversionDone());
+			modm::delayMicroseconds(1000);
+		}
 
 		PT_WAIT_UNTIL(ds18b20.isConversionDone());
 

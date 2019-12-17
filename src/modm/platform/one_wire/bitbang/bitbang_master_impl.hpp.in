@@ -38,7 +38,7 @@ modm::platform::BitBangOneWireMaster<Pin>::touchReset()
 	delayMicroseconds(I);
 
 	// sample for presence pulse from slave
-	bool result = !PIN::read();
+	bool result = not PIN::read();
 
 	delayMicroseconds(J);			// complete the reset sequence recovery
 

@@ -23,33 +23,25 @@ namespace modm {
 namespace ds18b20data {
 
 void
-Data::updateConfig(uint8_t scratchpad[8])
-{
-	uint8_t config = (scratchpad[4] >> 5) & 0x03; // byte 4 configuration register
-
-	// Calculate conversion factor depending on the sensors resolution
-	//  9 bit = 0.5000 °C steps
-	// 10 bit = 0.2500 °C steps
-	// 11 bit = 0.1250 °C steps
-	// 12 bit = 0.0625 °C steps
-	switch (config) {
-		case 0b11: factor =  625; break;
-		case 0b10: factor = 1250; break;
-		case 0b01: factor = 2500; break;
-		case 0b00: factor = 5000; break;
-	}
-	MODM_LOG_DEBUG.printf("factor = %d\n", factor);
-}
-
-void
 Data::updateTemperature(uint8_t scratchpad[8])
 {
+	int16_t temp = scratchpad[0] | (scratchpad[1] << 8);
 	// int16_t *rData = reinterpret_cast<int16_t*>(scratchpad);
 	// int16_t temp = modm::fromLittleEndian(*rData);
-	int16_t temp = scratchpad[0] | (scratchpad[1] << 8);
+
+	// Depending on resolution, lower bits are undefined, datasheet p6
+	// Just clearing them for reproducible results
+	uint8_t config = (scratchpad[4] >> 5) & 0x03; // byte 4 configuration register
+	switch (config) {
+		case 0b11: break; // Nothing, all bits valid
+		case 0b10: temp &= 0xfffe; break; // clear bit 0
+		case 0b01: temp &= 0xfffc; break; // clear bit 1 and 0
+		case 0b00: temp &= 0xfff8; break; // clear bit 2, 1 and 0
+	}
+	MODM_LOG_DEBUG.printf("temp = %d\n", temp);
 
 	// Convert to centigrad
-	convertedTemperature = ((factor * temp) ) / 100;
+	convertedTemperature = ((625 * temp) ) / 100;
 }
 
 } // ds18b20data namespace
