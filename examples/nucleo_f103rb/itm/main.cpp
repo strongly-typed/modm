@@ -21,9 +21,9 @@ int
 main()
 {
 	Board::initialize();
-	LedD13::setOutput();
+	LedGreen::setOutput();
 
-	// Done by OpenOCD: scons itm fcpu=64000000
+	// Done by OpenOCD: scons log-itm fcpu=64000000
 	// Itm::initialize<Board::SystemClock, 500_kHz>();
 	// Itm::connect<GpioB3::Traceswo>();
 
@@ -39,8 +39,7 @@ main()
 		static modm::PeriodicTimer tmr{500ms};
 		if (tmr.execute())
 		{
-			tmr.restart(Button::read() ? 100ms : 500ms);
-			LedD13::toggle();
+			LedGreen::toggle();
 
 			static uint32_t counter{0};
 			stream << "loop: " << counter++ << modm::endl;

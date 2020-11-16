@@ -1,8 +1,9 @@
 <library>
-  <extends>modm:nucleo-f103rb</extends>
+  <extends>modm:blue-pill</extends>
   <options>
     <option name="modm:build:build.path">../../../build/nucleo_f103rb/itm</option>
     <option name="modm:platform:itm:buffer.tx">250</option>
+    <option name="modm:build:openocd.cfg">openocd.cfg</option>
   </options>
   <modules>
     <module>modm:build:scons</module>
