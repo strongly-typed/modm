@@ -63,6 +63,7 @@ AmnbNodeTest::testRequest()
 	SharedMedium::add_queued_rx({0x7E, 0x7E, 251, 0x08, 0x70, 0xc0}, 6);
 	{
 		micro_clock::setTime(0); milli_clock::setTime(0);
+		auto t = milli_clock::now();
 		modm::ResumableResult< Result<> > res{0};
 		for(uint32_t ii=0; (res = node.request(0x10, 0x80)).getState() == modm::rf::Running; ii += 10)
 		{ micro_clock::setTime(ii); milli_clock::setTime(ii/1000); node.update(); }

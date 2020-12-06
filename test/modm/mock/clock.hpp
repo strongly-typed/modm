@@ -27,6 +27,9 @@ public:
 	static inline void increment(std::chrono::milliseconds time)
 	{ increment(time.count()); }
 	static void increment(uint32_t milliseconds);
+
+	static inline modm::chrono::milli_clock::time_point now() noexcept
+	{ return now(); }
 };
 
 class micro_clock : modm::chrono::micro_clock
